@@ -1,0 +1,343 @@
+" ██╗   ██╗██╗███╗   ███╗  ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗███████╗
+" ██║   ██║██║████╗ ████║  ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║██╔════╝
+" ██║   ██║██║██╔████╔██║  ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║███████╗
+" ╚██╗ ██╔╝██║██║╚██╔╝██║  ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║╚════██║
+"  ╚████╔╝ ██║██║ ╚═╝ ██║  ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
+"   ╚═══╝  ╚═╝╚═╝     ╚═╝  ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
+
+" Install vim-plug if not exist
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Automatically install missing plugins on startup
+autocmd VimEnter *
+  \  if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \|   PlugInstall --sync | q
+  \| endif
+
+" H to open help doc
+function! s:plug_doc()
+  let name = matchstr(getline('.'), '^- \zs\S\+\ze:')
+  if has_key(g:plugs, name)
+    for doc in split(globpath(g:plugs[name].dir, 'doc/*.txt'), '\n')
+      execute 'tabe' doc
+    endfor
+  endif
+endfunction
+
+augroup PlugHelp
+  autocmd!
+  autocmd FileType vim-plug nnoremap <buffer> <silent> H :call <sid>plug_doc()<cr>
+augroup END
+
+" Press gx to open the GitHub URL for a plugin or a commit with the default browser
+function! s:plug_gx()
+  let line = getline('.')
+  let sha  = matchstr(line, '^  \X*\zs\x\{7,9}\ze ')
+  let name = empty(sha) ? matchstr(line, '^[-x+] \zs[^:]\+\ze:')
+                      \ : getline(search('^- .*:$', 'bn'))[2:-2]
+  let uri  = get(get(g:plugs, name, {}), 'uri', '')
+  if uri !~ 'github.com'
+    return
+  endif
+  let repo = matchstr(uri, '[^:/]*/'.name)
+  let url  = empty(sha) ? 'https://github.com/'.repo
+                      \ : printf('https://github.com/%s/commit/%s', repo, sha)
+  call netrw#BrowseX(url, 0)
+endfunction
+
+augroup PlugGx
+  autocmd!
+  autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call <sid>plug_gx()<cr>
+augroup END
+
+" Browse help files and README.md
+" Requires fzf.
+function! s:plug_help_sink(line)
+  let dir = g:plugs[a:line].dir
+  for pat in ['doc/*.txt', 'README.md']
+    let match = get(split(globpath(dir, pat), "\n"), 0, '')
+    if len(match)
+      execute 'tabedit' match
+      return
+    endif
+  endfor
+  tabnew
+  execute 'Explore' dir
+endfunction
+
+command! PlugHelp call fzf#run(fzf#wrap({
+  \ 'source': sort(keys(g:plugs)),
+  \ 'sink':   function('s:plug_help_sink')}))
+
+" Extra key bindings for PlugDiff
+" J / K to scroll the preview window
+" CTRL-N / CTRL-P to move between the commits
+" CTRL-J / CTRL-K to move between the commits and synchronize the preview window
+function! s:scroll_preview(down)
+  silent! wincmd P
+  if &previewwindow
+    execute 'normal!' a:down ? "\<c-e>" : "\<c-y>"
+    wincmd p
+  endif
+endfunction
+
+function! s:setup_extra_keys()
+  nnoremap <silent> <buffer> J :call <sid>scroll_preview(1)<cr>
+  nnoremap <silent> <buffer> K :call <sid>scroll_preview(0)<cr>
+  nnoremap <silent> <buffer> <c-n> :call search('^  \X*\zs\x')<cr>
+  nnoremap <silent> <buffer> <c-p> :call search('^  \X*\zs\x', 'b')<cr>
+  nmap <silent> <buffer> <c-j> <c-n>o
+  nmap <silent> <buffer> <c-k> <c-p>o
+endfunction
+
+augroup PlugDiffExtra
+  autocmd!
+  autocmd FileType vim-plug call s:setup_extra_keys()
+augroup END
+
+
+" Plugin completion using VimAwesome API
+function! VimAwesomeComplete() abort
+  let prefix = matchstr(strpart(getline('.'), 0, col('.') - 1), '[.a-zA-Z0-9_/-]*$')
+  echohl WarningMsg
+  echo 'Downloading plugin list from VimAwesome'
+  echohl None
+ruby << EOF
+  require 'json'
+  require 'open-uri'
+
+  query = VIM::evaluate('prefix').gsub('/', '%20')
+  items = 1.upto(max_pages = 3).map do |page|
+    Thread.new do
+      url  = "http://vimawesome.com/api/plugins?page=#{page}&query=#{query}"
+      data = open(url).read
+      json = JSON.parse(data, symbolize_names: true)
+      json[:plugins].map do |info|
+        pair = info.values_at :github_owner, :github_repo_name
+        next if pair.any? { |e| e.nil? || e.empty? }
+        {word: pair.join('/'),
+         menu: info[:category].to_s,
+         info: info.values_at(:short_desc, :author).compact.join($/)}
+      end.compact
+    end
+  end.each(&:join).map(&:value).inject(:+)
+  VIM::command("let cands = #{JSON.dump items}")
+EOF
+  if !empty(cands)
+    inoremap <buffer> <c-v> <c-n>
+    augroup _VimAwesomeComplete
+      autocmd!
+      autocmd CursorMovedI,InsertLeave * iunmap <buffer> <c-v>
+            \| autocmd! _VimAwesomeComplete
+    augroup END
+
+    call complete(col('.') - strchars(prefix), cands)
+  endif
+  return ''
+endfunction
+
+augroup VimAwesomeComplete
+  autocmd!
+  autocmd FileType vim inoremap <c-x><c-v> <c-r>=VimAwesomeComplete()<cr>
+augroup END
+
+
+" NERDCommenter config
+
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 0
+
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
+
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+
+" Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines = 1
+
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+
+" Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDToggleCheckAllLines = 1
+
+
+" NERDTree config
+
+" Open NERDTree when Vim starts up
+"autocmd vimenter * NERDTree
+
+" Shortcut to open NERDTree
+map <C-n> :NERDTreeToggle<CR>
+
+" Close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+" Default arrow symbol
+"let g:NERDTreeDirArrowExpandable = '▸'
+"let g:NERDTreeDirArrowCollapsible = '▾'
+
+
+" nerdtree-git-plugin config
+
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "↪",
+    \ "Staged"    : "↗",
+    \ "Untracked" : "+",
+    \ "Renamed"   : "↻",
+    \ "Unmerged"  : "⇆",
+    \ "Deleted"   : "−",
+    \ "Dirty"     : "!",
+    \ "Clean"     : "·",
+    \ 'Ignored'   : 'x',
+    \ "Unknown"   : "?"
+    \ }
+
+let g:NERDTreeShowIgnoredStatus = 1
+
+
+" Vim-nerdtree-syntax-highlight config
+
+" Highlight full name (not only icons)
+"let g:NERDTreeFileExtensionHighlightFullName = 1
+"let g:NERDTreeExactMatchHighlightFullName = 1
+"let g:NERDTreePatternMatchHighlightFullName = 1
+
+" Highlight folders using exact match
+let g:NERDTreeHighlightFolders = 1 " enables folder icon highlighting using exact match
+let g:NERDTreeHighlightFoldersFullName = 1 " highlights the folder name
+
+" Disabling Cursorline highlight
+let g:NERDTreeHighlightCursorline = 0
+
+" Customized Colors
+let s:brown = "905532"
+let s:aqua =  "3AFFDB"
+let s:blue = "689FB6"
+let s:darkBlue = "44788E"
+let s:purple = "834F79"
+let s:lightPurple = "834F79"
+let s:red = "AE403F"
+let s:beige = "F5C06F"
+let s:yellow = "F09F17"
+let s:orange = "D4843E"
+let s:darkOrange = "F16529"
+let s:pink = "CB6F6F"
+let s:salmon = "EE6E73"
+let s:green = "8FAA54"
+let s:lightGreen = "31B53E"
+let s:white = "FFFFFF"
+let s:rspec_red = 'FE405F'
+let s:git_orange = 'F54D27'
+
+
+" Airline config
+
+let g:airline_powerline_fonts = 1
+
+
+" Airline Theme config
+
+let g:airline_theme='fruit_punch'
+
+
+" Vim Devicons config
+
+" Can be enabled or disabled
+"let g:webdevicons_enable_nerdtree = 1
+
+" Whether or not to show the nerdtree brackets around flags
+"let g:webdevicons_conceal_nerdtree_brackets = 1
+
+" adding to vim-airline's tabline
+"let g:webdevicons_enable_airline_tabline = 1
+
+" adding to vim-airline's statusline
+"let g:webdevicons_enable_airline_statusline = 1
+
+
+" Goyo config
+
+" Toggle Goyo
+map <leader>f :Goyo \| set linebreak<CR>
+
+" Color name (:help cterm-colors) or ANSI code
+let g:limelight_conceal_ctermfg = 'magenta'
+
+" Default: 0.5
+let g:limelight_default_coefficient = 0.1
+
+" Number of preceding/following paragraphs to include (default: 0)
+let g:limelight_paragraph_span = 0
+
+" Beginning/end of paragraph
+" When there's no empty line between the paragraphs and each paragraph starts with indentation
+let g:limelight_bop = '^\s'
+let g:limelight_eop = '\ze\n^\s'
+
+" Highlighting priority (default: 10)
+" Set it to -1 not to overrule hlsearch
+let g:limelight_priority = -1
+
+" Height and Width
+let g:goyo_width=110
+let g:goyo_height=45
+
+
+" Limelight config
+
+" Toggle Limelight
+map <leader>l :Limelight!!<CR>
+
+" Enter Limelight when using Goyo
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+
+
+call plug#begin('~/.vim/plugged')
+
+" A Git Wrapper so awesome, it should be illegal
+Plug 'tpope/vim-fugitive'
+
+" Vim plugin for intensely nerdy commenting powers
+Plug 'preservim/nerdcommenter'
+
+" A tree explorer plugin for vim.
+Plug 'preservim/nerdtree'
+
+" A plugin of NERDTree showing git status
+Plug 'Xuyuanp/nerdtree-git-plugin'
+
+" Extra syntax and highlight for nerdtree files
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+
+" Lean & mean status/tabline for vim that's light as air
+Plug 'vim-airline/vim-airline'
+
+" A collection of themes for vim-airline
+Plug 'vim-airline/vim-airline-themes'
+
+" Adds file type icons to Vim plugins
+Plug 'ryanoasis/vim-devicons'
+
+" surround.vim: quoting/parenthesizing made simple
+Plug 'tpope/vim-surround'
+
+" Distraction-free writing in Vim
+Plug 'junegunn/goyo.vim'
+
+" All the world's indeed a stage and we are merely players
+Plug 'junegunn/limelight.vim'
+
+call plug#end()
