@@ -10,21 +10,11 @@ export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/harambe/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="pygmalion"
+# Set name of the theme to load
+ZSH_THEME=""
 
 # Highlight auto suggestion
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#99ecfd,bg=#ff92d0,bold"
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -80,19 +70,19 @@ HIST_STAMPS="mm/dd/yyyy"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  aws
+  #aws
   kubectl
   docker
-  vscode
-  tmux
+  #vscode
+  #tmux
   zsh-syntax-highlighting
   zsh-completions
   zsh-autosuggestions
   brew
-  npm
-  yum
-  yarn
-  pip
+  #npm
+  #yum
+  #yarn
+  #pip
   #osx
   history
 )
@@ -101,6 +91,23 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+
+# Load Pure Theme
+autoload -U promptinit; promptinit
+
+# Optionally define some options
+PURE_CMD_MAX_EXEC_TIME=10
+
+# Change the path color
+zstyle :prompt:pure:path color magenta
+
+# Change the color for both `prompt:success` and `prompt:error`
+zstyle ':prompt:pure:prompt:*' color cyan
+
+# Turn on git stash status
+zstyle :prompt:pure:git:stash show yes
+
+prompt pure
 
 export MANPATH="/usr/local/man:$MANPATH"
 
@@ -132,8 +139,8 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 export CLICOLOR=1
 
 # History in cache directory:
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=50000
+SAVEHIST=50000
 
 # Basic auto/tab complete:
 autoload -U compinit
@@ -203,20 +210,16 @@ bindkey '^e' edit-command-line
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 # Set environment variable to point to bat config file
-export BAT_CONFIG_PATH="./.batconf"
+export BAT_CONFIG_PATH="~/.config/bat/bat.conf"
 
 # Search files
-f() {
-  find . -print | grep -i $1
-}
+alias f='find . -print | grep -i $1'
 
 # Exa
-alias ls='exa -G --icons'
-alias ll='exa -G -l --icons --git'
-alias l='exa -G -l --icons --git'
-alias la='exa -G -l -a --icons --git'
-alias lt='exa -G -l -a -T --icons --git'
-alias lr='exa -G -l -a -R --icons --git'
+alias ls='exa -G -l --icons --git -h'
+alias la='exa -G -la --icons --git -h'
+alias lt='exa -G -la -T --icons --git'
+alias lr='exa -G -la -R --icons --git'
 
 
 # Automatically do an ls after each cd
@@ -228,56 +231,23 @@ cd() {
   fi
 }
 
-# Create and go to the directory
-mkdirg() {
-  mkdir -p $1
-  cd $1
-}
-
-# Copy and go to the directory
-cpg() {
-  if [ -d "$2" ];then
-    cp $1 $2 && cd $2
-  else
-    cp $1 $2
-  fi
-}
-
-# Move and go to the directory
-mvg() {
-  if [ -d "$2" ];then
-    mv $1 $2 && cd $2
-  else
-    mv $1 $2
-  fi
-}
-
-# Go up N number of directories
-up() {
-  if [ -z "$1" ]; then
-    echo "No agrument passed"
-  else
-    for ((i=0;i<$1;i++));
-      do cd ..;
-    done
-  fi
-}
+alias md='mkdir -p'
 
 # Extract different type of compressed files
 extract() {
   if [ -f $1 ]; then
     case $1 in
-      *.tar.bz2) tar xvjf $1    ;;
-      *.tar.gz)  tar xvzf $1    ;;
-      *.bz2)     bunzip2 $1     ;;
-      *.rar)     unrar x $1       ;;
-      *.gz)      gunzip $1      ;;
-      *.tar)     tar xvf $1     ;;
-      *.tbz2)    tar xvjf $1    ;;
-      *.tgz)     tar xvzf $1    ;;
-      *.zip)     unzip $1       ;;
-      *.Z)       uncompress $1  ;;
-      *.7z)      7z x $1        ;;
+      *.tar.bz2) tar xvjf $1   ;;
+      *.tar.gz)  tar xvzf $1   ;;
+      *.bz2)     bunzip2 $1    ;;
+      *.rar)     unrar x $1    ;;
+      *.gz)      gunzip $1     ;;
+      *.tar)     tar xvf $1    ;;
+      *.tbz2)    tar xvjf $1   ;;
+      *.tgz)     tar xvzf $1   ;;
+      *.zip)     unzip $1      ;;
+      *.Z)       uncompress $1 ;;
+      *.7z)      7z x $1       ;;
       *)         echo "Don't know how to extract '$1'..." ;;
     esac
   else
@@ -325,21 +295,6 @@ react-app() {
   code .
 }
 
-# Z Shell Banner
-echoZshell() {
-  echo "                                                                                    "
-  echo "\e[35m ███████╗\e[0m \e[36m ███████╗\e[0m\e[33m██╗  ██╗███████╗██╗     ██╗\e[0m"
-  echo "\e[35m ╚══███╔╝\e[0m \e[36m ██╔════╝\e[0m\e[33m██║  ██║██╔════╝██║     ██║\e[0m"
-  echo "\e[35m   ███╔╝\e[0m  \e[36m ███████╗\e[0m\e[33m███████║█████╗  ██║     ██║\e[0m"
-  echo "\e[35m  ███╔╝ \e[0m  \e[36m ╚════██║\e[0m\e[33m██╔══██║██╔══╝  ██║     ██║\e[0m"
-  echo "\e[35m ███████╗ \e[0m\e[36m ███████║\e[0m\e[33m██║  ██║███████╗███████╗███████╗\e[0m"
-  echo "\e[35m ╚══════╝ \e[0m\e[36m ╚══════╝\e[0m\e[33m╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\e[0m"
-  echo "                                                                                    "
-}
-
-# Start spotifyd daemon
-alias spd='~/Spotifyd/target/release/spotifyd --no-daemon'
-
 # touch
 alias t='touch'
 
@@ -351,8 +306,11 @@ alias trre='trash-restore'
 alias trrm='trash-rm'
 alias trem='trash-empty'
 alias rm='echo "This is not the command you are looking for."; false'
+alias rd='echo "This is not the command you are looking for."; false'
+alias rmdir='echo "This is not the command you are looking for."; false'
 
 # Vim
+alias v='vim'
 alias vi='vim'
 
 # Previous directory
@@ -367,7 +325,7 @@ alias 755='chmod -R 755'
 alias 777='chmod -R 777'
 
 # Search running processes
-alias p="ps aux | grep "
+alias p="ps aux | grep"
 
 # Dot to go up a directory
 alias ..='cd ..'
@@ -402,21 +360,11 @@ alias alp='alpine'
 # htop
 alias top='gotop -c vice'
 
-# Weather wttr.in
-# Install Wego; a weather terminal client
+# wttr.in
 alias weather='curl wttr.in'
 
 # Cheatsheet
 #alias cheat='curl cheat.sh/$1'
-
-# QR Code
-#curl qrenco.de/amazing
-
-# Dictionary
-#alias dict="curl dict://dict.org/d:$1"
-
-# Cryptocurrency
-#curl rate.sx/btc
 
 # Tmux binding
 bindkey -s '^t' 'tmux\n'
@@ -425,8 +373,14 @@ bindkey -s '^t' 'tmux\n'
 eval $(thefuck --alias)
 
 # Source fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Start Screen
-echoZshell
-neofetch
+#echo "                                                                                    "
+#echo "\e[35m ███████╗\e[0m \e[36m ███████╗\e[0m\e[33m██╗  ██╗███████╗██╗     ██╗\e[0m"
+#echo "\e[35m ╚══███╔╝\e[0m \e[36m ██╔════╝\e[0m\e[33m██║  ██║██╔════╝██║     ██║\e[0m"
+#echo "\e[35m   ███╔╝\e[0m  \e[36m ███████╗\e[0m\e[33m███████║█████╗  ██║     ██║\e[0m"
+#echo "\e[35m  ███╔╝ \e[0m  \e[36m ╚════██║\e[0m\e[33m██╔══██║██╔══╝  ██║     ██║\e[0m"
+#echo "\e[35m ███████╗ \e[0m\e[36m ███████║\e[0m\e[33m██║  ██║███████╗███████╗███████╗\e[0m"
+#echo "\e[35m ╚══════╝ \e[0m\e[36m ╚══════╝\e[0m\e[33m╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\e[0m"
+#echo "                                                                                    "
+#neofetch

@@ -31,7 +31,8 @@
     "Alpha Component" : 1,
     "Green Component" : 0.40392156862745099
   },
-  "Mouse Reporting" : true,
+  "Show Mark Indicators" : false,
+  "Mouse Reporting" : false,
   "Cursor Boost" : 0,
   "Ansi 4 Color" : {
     "Green Component" : 0.57647058823529407,
@@ -123,9 +124,9 @@
     "Alpha Component" : 0.25,
     "Green Component" : 0.92549019607843142
   },
-  "BM Growl" : true,
+  "BM Growl" : false,
   "AWDS Window Directory" : "",
-  "Icon" : 2,
+  "Icon" : 0,
   "Ansi 3 Color" : {
     "Green Component" : 0.98039215686274506,
     "Red Component" : 0.94509803921568625,
@@ -148,7 +149,7 @@
     "Green Component" : 1
   },
   "Use Cursor Guide" : false,
-  "Custom Window Title" : "John's ITerm2",
+  "Custom Window Title" : "",
   "Unlimited Scrollback" : true,
   "Custom Command" : "No",
   "AWDS Tab Option" : "No",
@@ -413,7 +414,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.55294117647058827
   },
-  "Name" : "John's ITerm2",
+  "Name" : "Shinvalor",
   "Blinking Cursor" : true,
   "Guid" : "3BD044A0-C44A-449E-A40F-750E37238980",
   "Idle Code" : 0,
@@ -440,8 +441,8 @@
   "Cursor Type" : 1,
   "Ansi 0 Color" : {
     "Green Component" : 0,
-    "Red Component" : 0,
-    "Blue Component" : 0
+    "Blue Component" : 0,
+    "Red Component" : 0
   },
   "AWDS Pane Directory" : "",
   "Blur" : false,
@@ -454,6 +455,7 @@
     "Red Component" : 0.73333334922790527,
     "Blue Component" : 0.73333334922790527
   },
+  "Place Prompt at First Column" : true,
   "AWDS Tab Directory" : "",
   "AWDS Pane Option" : "No",
   "Command" : "",
@@ -465,8 +467,8 @@
   "Custom Icon Path" : "\/Users\/harambe\/dracula.icns",
   "Ansi 15 Color" : {
     "Green Component" : 1,
-    "Red Component" : 1,
-    "Blue Component" : 1
+    "Blue Component" : 1,
+    "Red Component" : 1
   },
   "Minimum Contrast" : 0,
   "Ansi 6 Color" : {
@@ -474,27 +476,29 @@
     "Red Component" : 0.54509803921568623,
     "Blue Component" : 0.99215686274509807
   },
-  "Transparency" : 0.24855647208121825,
+  "Transparency" : 0.15563332804568525,
   "Initial Text" : "",
   "Background Color" : {
-    "Red Component" : 0.20000000000000001,
+    "Red Component" : 0.15686274509803921,
     "Color Space" : "sRGB",
-    "Blue Component" : 0.20000000000000001,
+    "Blue Component" : 0.21176470588235294,
     "Alpha Component" : 1,
-    "Green Component" : 0.20000000000000001
+    "Green Component" : 0.16470588235294117
   },
   "Screen" : -1,
   "AWDS Window Option" : "No",
   "tmux Pane Title" : "Default",
   "Non Ascii Font" : "Monaco 12",
+  "Mouse Reporting allow mouse wheel" : false,
   "Ansi 13 Color" : {
     "Green Component" : 0.47450980392156861,
     "Red Component" : 1,
     "Blue Component" : 0.77647058823529413
   },
+  "Allow Paste Bracketing" : false,
   "Columns" : 160,
   "Use Tab Color" : false,
-  "Visual Bell" : true,
+  "Visual Bell" : false,
   "Custom Directory" : "No",
   "Ansi 5 Color" : {
     "Green Component" : 0.47450980392156861,
