@@ -5,17 +5,25 @@
 "  ╚████╔╝ ██║██║ ╚═╝ ██║██║  ██║╚██████╗
 "   ╚═══╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝
 
-" Set compatibility to Vim only.
-"set nocompatible
+" Leader key
+let mapleader=' '
 
-" Helps force plug-ins to load correctly when it is turned back on below.
-"FileType off
+" Source vimrc.plug
+if filereadable(expand("~/.vimrc.plug"))
+  source ~/.vimrc.plug
+endif
+
+" Set compatibility to Vim only.
+set nocompatible
 
 " Turn on syntax highlighting
-"syntax on
+syntax on
+
+" Color Scheme
+"colorscheme dracula
 
 " For plug-ins to load correctly.
-"FileType plugin indent on
+"filetype plugin indent on
 
 " Vertical bar in insert mode; Block in normal mode
 if $TERM_PROGRAM =~ "iTerm"
@@ -23,14 +31,15 @@ if $TERM_PROGRAM =~ "iTerm"
   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
-" Show line numbers
+" Show number line
 set number relativenumber
+
+" Number line color
+highlight LineNr ctermfg=white
 
 " Display options
 set showmode
 set showcmd
-
-let mapleader=' '
 
 " Spellcheck
 map <leader>o :setlocal spell! spelllang=en_us<CR>
@@ -47,14 +56,14 @@ set expandtab
 " Number of spaces when tab
 set shiftwidth=2
 
-" Color Scheme
-"colo elflord
-
 " Search as characters are entered
 set incsearch
 
 " Highlight matches
 set hlsearch
+
+" Highlight color
+hi Search cterm=NONE ctermfg=yellow ctermbg=magenta
 
 " Highlight matching parenthesis
 set showmatch
@@ -75,7 +84,7 @@ set autoindent
 set scroll=10
 
 ".Display.5.lines.above/below.the.cursor.when.scrolling.with.a.mouse.
-set scrolloff=5
+set scrolloff=999
 
 " Fixes common backspace problems
 set backspace=indent,eol,start
@@ -141,9 +150,10 @@ autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 set viminfo='100,<9999,s100
 
 " Vim's auto indentation feature does not work properly with text copied from outside of Vim. Press the <F2> key to toggle paste mode on/off.
-nnoremap <F2> :set invpaste paste?<CR>
-imap <F2> <C-O>:set invpaste paste?<CR>
-set pastetoggle=<F2>
+"nnoremap <F2> :set invpaste paste?<CR>
+"imap <F2> <C-O>:set invpaste paste?<CR>
+"set pastetoggle=<F2>
+map <leader>p :set paste!<CR>
 
 " Map the <Space> key to toggle a selected fold opened/closed.
 "nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
@@ -163,11 +173,6 @@ set pastetoggle=<F2>
 
 "set guifont=DroidSansMono\ Nerd\ Font:h11
 set guifont=FiraCode\ Nerd\ Font:h11
-
-" Source vimrc.plug
-if filereadable(expand("~/.vimrc.plug"))
-  source ~/.vimrc.plug
-endif
 
 "Source everytime I edit vimrc
 autocmd BufWritePost .vimrc source %

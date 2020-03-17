@@ -6,18 +6,16 @@
 # ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
 
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+#export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/harambe/.oh-my-zsh"
+
 # Set name of the theme to load
 ZSH_THEME=""
 
 # Highlight auto suggestion
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#99ecfd,bg=#ff92d0,bold"
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+#ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#99ecfd,bg=#ff92d0,bold"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
@@ -63,7 +61,6 @@ HIST_STAMPS="mm/dd/yyyy"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
-# Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
@@ -84,7 +81,7 @@ plugins=(
   #yarn
   #pip
   #osx
-  history
+  #history
 )
 
 # Source oh-my-zsh
@@ -188,50 +185,15 @@ preexec() {
   echo -ne '\e[5 q' ;
 }
 
-# Use lf to switch directories and bind it to ctrl-o
-#lfcd() {
-#  tmp="$(mktemp)"
-#  lf -last-dir-path="$tmp" "$@"
-#  if [ -f "$tmp" ]; then
-#    dir="$(cat "$tmp")"
-#    rm -f "$tmp"
-#    [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
-#  fi
-#}
-
-#bindkey -s '^o' 'lfcd\n'
-bindkey -s '^o' 'ranger\n'
-
 # Edit command line in vim with ctrl-e:
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
 
+# Set environment variable to point to bat config file
+export BAT_CONFIG_PATH="/Users/harambe/.config/bat/bat.conf"
+
 # Using bat to colorize pager for man, by setting the MANPAGER environment variable
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-# Set environment variable to point to bat config file
-export BAT_CONFIG_PATH="~/.config/bat/bat.conf"
-
-# Search files
-alias f='find . -print | grep -i $1'
-
-# Exa
-alias ls='exa -G -l --icons --git -h'
-alias la='exa -G -la --icons --git -h'
-alias lt='exa -G -la -T --icons --git'
-alias lr='exa -G -la -R --icons --git'
-
-
-# Automatically do an ls after each cd
-cd() {
-  if [ -n "$1" ]; then
-    builtin cd "$@" && ll
-  else
-    builtin cd ~ && ll
-  fi
-}
-
-alias md='mkdir -p'
 
 # Extract different type of compressed files
 extract() {
@@ -264,6 +226,32 @@ setopt auto_cd
 # Automatically list choices on ambiguous completion
 setopt auto_list
 
+# Create a new react app
+#react-app() {
+#  npx create-react-app $1
+#  cd $1
+#  npm i -D eslint
+#  npm i -D eslint-config-prettier eslint-plugin-prettier
+#  npm i -D eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-react-hooks
+#  cp "${HOME}/.eslintrc.json" .
+#  cp "${HOME}/.prettierrc" .
+#  echo $1 > README.md
+#  rm -rf yarn.lock
+#  cd src
+#  rm -f App.css App.test.js index.css logo.svg serviceWorker.js
+#  mkdir components views
+#  git add -A
+#  git commit -m "Initial commit."
+#  cd ..
+#  clear
+#  code .
+#}
+
+# Does it exist?
+_exists() {
+  command -v $1 > /dev/null 2>&1
+}
+
 # Edit zshrc
 editZsh() {
   vim ~/.zshrc
@@ -274,44 +262,52 @@ editZsh() {
 alias editVim='vim ~/.vimrc'
 alias editPlug='vim ~/.vimrc.plug'
 
-# Create a new react app
-react-app() {
-  npx create-react-app $1
-  cd $1
-  npm i -D eslint
-  npm i -D eslint-config-prettier eslint-plugin-prettier
-  npm i -D eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-react-hooks
-  cp "${HOME}/.eslintrc.json" .
-  cp "${HOME}/.prettierrc" .
-  echo $1 > README.md
-  rm -rf yarn.lock
-  cd src
-  rm -f App.css App.test.js index.css logo.svg serviceWorker.js
-  mkdir components views
-  git add -A
-  git commit -m "Initial commit."
-  cd ..
-  clear
-  code .
+# Search files
+alias f='find . -print | grep -i $1'
+
+# Exa
+alias ls='exa -G -l --icons --git'
+alias la='exa -G -la --icons --git'
+alias lt='exa -G -la -T --icons --git'
+alias lr='exa -G -la -R --icons --git'
+
+# Automatically do an ls after each cd
+cd() {
+  if [ -n "$1" ]; then
+    builtin cd "$@" && ls
+  else
+    builtin cd ~ && ls
+  fi
 }
+
+alias md='mkdir -p'
+
+# Folders Shortcuts
+[ -d ~/Downloads ]  && alias dl='cd ~/Downloads'
+[ -d ~/Desktop ]    && alias dt='cd ~/Desktop'
 
 # touch
 alias t='touch'
 
-# Trash-cli
-alias tr='trash'
-alias trp='trash-put'
-alias trl='trash-list'
-alias trre='trash-restore'
-alias trrm='trash-rm'
-alias trem='trash-empty'
-alias rm='echo "This is not the command you are looking for."; false'
-alias rd='echo "This is not the command you are looking for."; false'
-alias rmdir='echo "This is not the command you are looking for."; false'
+# Commands Shortcuts
+alias e="$EDITOR"
 
-# Vim
-alias v='vim'
-alias vi='vim'
+# Trash
+if _exists trash; then
+  alias tr='trash'
+  alias trp='trash-put'
+  alias trl='trash-list'
+  alias trrs='trash-restore'
+  alias trrm='trash-rm'
+  alias trem='trash-empty'
+  alias rm='echo "This is not the command you are looking for."; false'
+  alias rd='echo "This is not the command you are looking for."; false'
+  alias rmdir='echo "This is not the command you are looking for."; false'
+else
+  alias rm='rm -i'
+  alias rd='rd -i'
+  alias rmdir='rmdir -i'
+fi
 
 # Previous directory
 alias bd='cd "$OLDPWD"'
@@ -323,6 +319,21 @@ alias 644='chmod -R 644'
 alias 666='chmod -R 666'
 alias 755='chmod -R 755'
 alias 777='chmod -R 777'
+
+# Generate random password, copies it into clipboard and outputs it to terminal
+if _exists pbcopy; then
+  alias password='openssl rand -base64 ${1:-9} | pbcopy ; echo "$(pbpaste)"'
+elif _exists xcopy; then
+  alias password='openssl rand -base64 ${1:-9} | xcopy ; echo "$(xpaste)"'
+else
+  alias password='openssl rand -base64 ${1:-9}; echo "$(xpaste)"'
+fi
+
+# Show $PATH in readable format
+alias path='echo -e ${PATH//:/\\n}'
+
+# My IP
+alias myip='ifconfig | sed -En "s/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p"'
 
 # Search running processes
 alias p="ps aux | grep"
@@ -341,46 +352,41 @@ alias cat='bat'
 alias python='python3'
 alias pip='pip3'
 
-# youtube-dl
-alias yt='youtube-dl'
-
 # cmus
 bindkey -s '^k' 'cmus\n'
 
-# iTerm2 Utilities
+# iTerm2
 alias icat='imgcat'
 alias ils='imgls'
 
 # Neomutt
-alias mutt='neomutt'
+#alias mutt='neomutt'
 
 # Alpine
-alias alp='alpine'
+bindkey -s '^n' 'apline\n'
+#alias alp='alpine'
 
 # htop
 alias top='gotop -c vice'
 
-# wttr.in
-alias weather='curl wttr.in'
+# Tmux
+bindkey -s '^p' 'tmux\n'
 
-# Cheatsheet
-#alias cheat='curl cheat.sh/$1'
-
-# Tmux binding
-bindkey -s '^t' 'tmux\n'
+# Ranger
+bindkey -s '^o' 'ranger\n'
 
 # thefuck
 eval $(thefuck --alias)
 
 # Source fzf
-#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-#echo "                                                                                    "
-#echo "\e[35m ███████╗\e[0m \e[36m ███████╗\e[0m\e[33m██╗  ██╗███████╗██╗     ██╗\e[0m"
-#echo "\e[35m ╚══███╔╝\e[0m \e[36m ██╔════╝\e[0m\e[33m██║  ██║██╔════╝██║     ██║\e[0m"
-#echo "\e[35m   ███╔╝\e[0m  \e[36m ███████╗\e[0m\e[33m███████║█████╗  ██║     ██║\e[0m"
-#echo "\e[35m  ███╔╝ \e[0m  \e[36m ╚════██║\e[0m\e[33m██╔══██║██╔══╝  ██║     ██║\e[0m"
-#echo "\e[35m ███████╗ \e[0m\e[36m ███████║\e[0m\e[33m██║  ██║███████╗███████╗███████╗\e[0m"
-#echo "\e[35m ╚══════╝ \e[0m\e[36m ╚══════╝\e[0m\e[33m╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\e[0m"
-#echo "                                                                                    "
-#neofetch
+echo
+echo "\e[35m ███████╗\e[0m \e[36m ███████╗\e[0m\e[34m██╗  ██╗███████╗██╗     ██╗\e[0m"
+echo "\e[35m ╚══███╔╝\e[0m \e[36m ██╔════╝\e[0m\e[34m██║  ██║██╔════╝██║     ██║\e[0m"
+echo "\e[35m   ███╔╝\e[0m  \e[36m ███████╗\e[0m\e[34m███████║█████╗  ██║     ██║\e[0m"
+echo "\e[35m  ███╔╝ \e[0m  \e[36m ╚════██║\e[0m\e[34m██╔══██║██╔══╝  ██║     ██║\e[0m"
+echo "\e[35m ███████╗ \e[0m\e[36m ███████║\e[0m\e[34m██║  ██║███████╗███████╗███████╗\e[0m"
+echo "\e[35m ╚══════╝ \e[0m\e[36m ╚══════╝\e[0m\e[34m╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\e[0m"
+echo
+neofetch

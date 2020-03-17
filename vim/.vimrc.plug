@@ -1,9 +1,9 @@
-" ██╗   ██╗██╗███╗   ███╗  ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗███████╗
-" ██║   ██║██║████╗ ████║  ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║██╔════╝
-" ██║   ██║██║██╔████╔██║  ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║███████╗
-" ╚██╗ ██╔╝██║██║╚██╔╝██║  ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║╚════██║
-"  ╚████╔╝ ██║██║ ╚═╝ ██║  ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
-"   ╚═══╝  ╚═╝╚═╝     ╚═╝  ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
+" ██╗   ██╗██╗███╗   ███╗    ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗███████╗
+" ██║   ██║██║████╗ ████║    ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║██╔════╝
+" ██║   ██║██║██╔████╔██║    ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║███████╗
+" ╚██╗ ██╔╝██║██║╚██╔╝██║    ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║╚════██║
+"  ╚████╔╝ ██║██║ ╚═╝ ██║    ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
+"   ╚═══╝  ╚═╝╚═╝     ╚═╝    ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
 
 " Install vim-plug if not exist
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -266,6 +266,20 @@ map <leader>l :Limelight!!<CR>
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
 
+" Vim Searchlight Config
+highlight link Searchlight Incsearch
+
+
+" Syntastic Config
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
 
 call plug#begin('~/.vim/plugged')
 
@@ -302,4 +316,16 @@ Plug 'junegunn/goyo.vim'
 " All the world's indeed a stage and we are merely players
 Plug 'junegunn/limelight.vim'
 
+" Highlights the current search match
+Plug 'peterrincker/vim-searchlight'
+
+" Dracula Vim Theme
+Plug 'dracula/vim', { 'as': 'dracula' }
+
+" Syntax
+Plug 'scrooloose/syntastic'
+
 call plug#end()
+
+" Source.everytime.I.edit.vimrc
+autocmd BufWritePost .vimrc.plug source %
